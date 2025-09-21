@@ -20,5 +20,8 @@ mypy>=1.0.0
 # Performance monitoring
 psutil>=5.9.0
 
+# Graph processing
+networkx>=3.0
+
 # Development and utilities
 pathlib2>=2.3.0; python_version < "3.4"

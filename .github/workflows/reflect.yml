@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install watchdog pyyaml schedule requests flask
+          pip install -r requirements.txt
           # Graphviz 설치 (시각화용)
           sudo apt-get update
           sudo apt-get install -y graphviz
@@ -96,7 +96,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install watchdog pyyaml pytest schedule requests flask
+          pip install -r requirements.txt
       
       - name: Run tests
         run: |
@@ -134,7 +134,7 @@ jobs:
       - name: Install linting tools
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 black isort mypy schedule requests flask
+          pip install -r requirements.txt
       
       - name: Run Black (code formatting)
         run: black --check --diff tools/ || true
@@ -164,7 +164,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install watchdog pyyaml psutil schedule requests flask
+          pip install -r requirements.txt
       
       - name: Run performance benchmarks
         run: |
