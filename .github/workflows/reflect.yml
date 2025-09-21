@@ -140,6 +140,8 @@ jobs:
       - name: Run reflection
         run: |
           echo "🔄 Running task reflection..."
+          # reflection 패키지 경로 추가
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           python tools/tasks_reflect.py \
             --in tasks.json \
             --out tasks.reflected.json \
@@ -149,6 +151,8 @@ jobs:
         if: github.event.inputs.skip_visualization != 'true'
         run: |
           echo "🎨 Generating visualizations..."
+          # reflection 패키지 경로 추가
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           python tools/dag_visualizer.py \
             --input tasks.reflected.json \
             --format all
@@ -266,6 +270,9 @@ jobs:
       - name: Run performance benchmarks
         run: |
           echo "⚡ Running performance benchmarks..."
+          
+          # reflection 패키지 경로 추가
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           
           # 리플렉션 성능 측정
           time python tools/tasks_reflect.py \
