@@ -1,0 +1,195 @@
+# Conventional Commits 설정
+# 외부 레퍼런스: https://www.conventionalcommits.org/en/v1.0.0/
+
+# 허용된 커밋 타입
+allowed_types:
+  feat: "새로운 기능"
+  fix: "버그 수정"
+  docs: "문서 변경"
+  style: "코드 스타일 변경 (포맷팅, 세미콜론 등)"
+  refactor: "리팩토링 (기능 변경 없음)"
+  perf: "성능 개선"
+  test: "테스트 추가/수정"
+  build: "빌드 시스템 변경"
+  ci: "CI/CD 설정 변경"
+  chore: "기타 작업 (빌드, 설정 등)"
+  revert: "이전 커밋 되돌리기"
+
+# 중요도별 분류 (1-3)
+importance_levels:
+  feat: 3      # 높음 - 새 기능
+  fix: 3       # 높음 - 버그 수정
+  perf: 2      # 중간 - 성능 개선
+  refactor: 2  # 중간 - 리팩토링
+  docs: 1      # 낮음 - 문서
+  style: 1     # 낮음 - 스타일
+  test: 1      # 낮음 - 테스트
+  build: 1     # 낮음 - 빌드
+  ci: 1        # 낮음 - CI
+  chore: 1     # 낮음 - 기타
+  revert: 2    # 중간 - 되돌리기
+
+# Breaking Change 키워드
+breaking_keywords:
+  - "BREAKING CHANGE"
+  - "BREAKING:"
+  - "!"
+
+# 버전 증가 규칙
+version_bumps:
+  major: ["feat", "fix"]  # BREAKING CHANGE 포함 시
+  minor: ["feat"]         # 새로운 기능
+  patch: ["fix", "perf", "refactor", "docs", "style", "test", "build", "ci", "chore"]  # 기타
+
+# 커밋 메시지 규칙
+commit_rules:
+  # 헤더 길이 제한
+  header_max_length: 100
+  header_min_length: 10
+  
+  # 본문 길이 제한
+  body_max_length: 1000
+  
+  # Breaking Change 허용 타입
+  breaking_change_types: ["feat", "fix"]
+  
+  # 필수 스코프 (선택사항)
+  required_scopes: []
+  
+  # 금지된 스코프
+  forbidden_scopes: []
+
+# CHANGELOG 생성 설정
+changelog:
+  # 섹션 순서
+  sections:
+    - "BREAKING CHANGES"
+    - "feat"
+    - "fix"
+    - "perf"
+    - "refactor"
+    - "docs"
+    - "style"
+    - "test"
+    - "build"
+    - "ci"
+    - "chore"
+  
+  # 섹션 제목
+  section_titles:
+    BREAKING_CHANGES: "⚠️ BREAKING CHANGES"
+    feat: "✨ 새로운 기능"
+    fix: "🐛 버그 수정"
+    perf: "⚡ 성능 개선"
+    refactor: "♻️ 리팩토링"
+    docs: "📚 문서"
+    style: "💄 스타일"
+    test: "✅ 테스트"
+    build: "🔨 빌드"
+    ci: "👷 CI/CD"
+    chore: "🔧 기타"
+  
+  # 통계 정보 포함
+  include_stats: true
+  
+  # 날짜 형식
+  date_format: "%Y-%m-%d"
+
+# 릴리즈 설정
+release:
+  # 기본 버전
+  default_version: "0.1.0"
+  
+  # 태그 접두사
+  tag_prefix: "v"
+  
+  # 릴리즈 제목 형식
+  title_format: "Release {version}"
+  
+  # 릴리즈 메시지 형식
+  message_format: "Release version {version}"
+  
+  # GitHub 릴리즈 설정
+  github:
+    # 드래프트로 생성
+    draft: false
+    
+    # 사전 릴리즈
+    prerelease: false
+    
+    # 최신 릴리즈로 설정
+    latest: true
+
+# 자동화 설정
+automation:
+  # Git 훅 설정
+  git_hooks:
+    # 커밋 메시지 검증
+    commit_msg_validation: true
+    
+    # 커밋 전 검증
+    pre_commit_checks: true
+  
+  # CI/CD 통합
+  ci_cd:
+    # GitHub Actions 통합
+    github_actions: true
+    
+    # 자동 릴리즈 생성
+    auto_release: false
+    
+    # 릴리즈 노트 자동 생성
+    auto_release_notes: true
+  
+  # 알림 설정
+  notifications:
+    # 슬랙 알림
+    slack: false
+    slack_webhook: ""
+    
+    # 이메일 알림
+    email: false
+    email_recipients: []
+
+# 프로젝트별 설정
+project:
+  # 프로젝트 이름
+  name: "Hybrid AI Development Workflow"
+  
+  # 프로젝트 설명
+  description: "고급 AI 기반 하이브리드 개발 워크플로우"
+  
+  # 저장소 정보
+  repository:
+    owner: "macho715"
+    name: "cursor-task"
+    url: "https://github.com/macho715/cursor-task"
+  
+  # 라이선스
+  license: "MIT"
+  
+  # 메인테이너
+  maintainer: "macho715"
+
+# 고급 설정
+advanced:
+  # 커밋 범위 자동 감지
+  auto_detect_scope: true
+  
+  # 중복 커밋 필터링
+  filter_duplicates: true
+  
+  # 커밋 그룹화
+  group_commits: true
+  
+  # 중요도 기반 정렬
+  sort_by_importance: true
+  
+  # 이모지 사용
+  use_emojis: true
+  
+  # 다국어 지원
+  i18n:
+    enabled: false
+    default_language: "ko"
+    supported_languages: ["ko", "en"]
