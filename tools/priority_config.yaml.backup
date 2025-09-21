@@ -34,7 +34,7 @@ task_types:
     priority: 3
     
   mcp:
-    command_template: "python tools/tasks_reflect.py --in tasks.json --out tasks.reflected.json --report reports/tasks_reflect_report.md"
+    command_template: "python tools/tasks_reflect.py --in tasks.json --out tasks.reflected.json"
     can_parallel: false
     priority: 4
     

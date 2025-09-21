@@ -1,0 +1,107 @@
+# 스타트업용 우선순위 실행 설정 (빠른 개발, 최소 리소스)
+
+execution:
+  # 기본 실행 전략 (빠른 개발 우선)
+  default_strategy: "efficiency"  # 최대 효율성
+  
+  # 병렬 실행 설정 (제한적 리소스)
+  parallel:
+    enabled: true
+    max_workers: 1               # 단일 워커 (리소스 절약)
+    timeout_per_task: 180        # 3분 (빠른 피드백)
+    
+  # 재시도 설정 (빠른 실패)
+  retry:
+    max_attempts: 2              # 최소 재시도
+    backoff_factor: 1.5
+    max_delay: 30                # 30초
+
+# 태스크 타입별 설정 (MVP 우선)
+task_types:
+  code:
+    command_template: "cursor agent --apply=ask --rules \"{title}\""
+    can_parallel: false
+    priority: 1                  # 최고 우선순위
+    estimated_duration: 120      # 2분
+    
+  config:
+    command_template: "echo \"Config: {title}\""
+    can_parallel: true
+    priority: 2
+    estimated_duration: 60       # 1분
+    
+  test:
+    command_template: "python -m pytest {module} -v"
+    can_parallel: true
+    priority: 3
+    estimated_duration: 90       # 1.5분
+    
+  docs:
+    command_template: "echo \"Documentation: {title}\""
+    can_parallel: true
+    priority: 4                  # 낮은 우선순위
+    estimated_duration: 30       # 30초
+
+# 복잡도 기반 우선순위
+complexity_weights:
+  low: 1.0                      # 낮은 복잡도 우선
+  medium: 1.5
+  high: 2.0
+  critical: 3.0
+
+# 실행 전략별 설정
+strategies:
+  dependency:
+    enabled: true
+    max_depth: 3                # 제한적 깊이
+    prefer_parallel: false
+    
+  complexity:
+    enabled: true
+    complexity_threshold: 2.0   # 높은 복잡도 우선
+    prefer_sequential: false
+    
+  efficiency:
+    enabled: true               # 기본 전략
+    time_weight: 0.7            # 시간 효율성 중시
+    resource_weight: 0.3        # 리소스 효율성
+
+# 팀 설정
+team:
+  size: "small"                 # 소규모 팀
+  experience_level: "junior"    # 주니어 개발자
+  working_hours: "9-18"         # 일반 근무시간
+  timezone: "Asia/Seoul"
+
+# 알림 설정
+notifications:
+  slack:
+    enabled: true
+    channel: "#dev-alerts"
+    mention_on_failure: true
+    
+  email:
+    enabled: false              # 이메일 비활성화
+    
+  console:
+    enabled: true
+    verbose: true               # 상세 로그
+
+# 성능 설정
+performance:
+  max_memory_usage: 512         # 512MB 제한
+  max_cpu_usage: 50             # 50% 제한
+  disk_space_limit: 1024        # 1GB 제한
+  
+# 개발 환경 최적화
+development:
+  hot_reload: true              # 핫 리로드 활성화
+  auto_save: true               # 자동 저장
+  quick_feedback: true          # 빠른 피드백
+  debug_mode: true              # 디버그 모드
+
+# 비용 최적화
+cost_optimization:
+  cloud_provider: "free_tier"   # 무료 티어 사용
+  resource_scaling: "minimal"   # 최소 리소스
+  auto_shutdown: true           # 자동 종료

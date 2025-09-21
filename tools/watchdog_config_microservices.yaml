@@ -1,0 +1,186 @@
+# 마이크로서비스 프로젝트용 Watchdog 설정
+
+# 감시 대상 파일
+watch_files:
+  - "docs/PRD.md"
+  - "tasks.json"
+  - "docker-compose.yml"   # 서비스 오케스트레이션
+  - "Dockerfile"           # 컨테이너 설정
+  - "k8s/**/*.yaml"        # Kubernetes 매니페스트
+  - "helm/**/*.yaml"       # Helm 차트
+
+# 감시 대상 디렉토리 (서비스별)
+watch_directories:
+  - "docs"
+  - "services"             # 마이크로서비스 디렉토리
+  - "shared"               # 공유 라이브러리
+  - "gateway"              # API 게이트웨이
+  - "config"               # 설정 파일
+  - "scripts"              # 배포 스크립트
+  - "monitoring"           # 모니터링 설정
+
+# 성능 설정 (마이크로서비스 특화)
+debounce_time: 3.0        # 서비스 간 의존성 고려
+hash_check: true
+recursive: true
+max_file_size: 20971520   # 20MB (대용량 설정 파일)
+
+# 제외 패턴 (마이크로서비스 특화)
+exclude_patterns:
+  - "*.tmp"
+  - "*.log"
+  - ".git/*"
+  - "node_modules/*"
+  - "__pycache__/*"
+  - "*.pyc"
+  - "target/*"             # Rust 빌드
+  - "build/*"              # 빌드 결과물
+  - "dist/*"               # 배포 파일
+  - "*.jar"                # Java JAR
+  - "*.war"                # Java WAR
+  - "*.ear"                # Java EAR
+  - "vendor/*"             # Go 의존성
+  - ".terraform/*"         # Terraform 상태
+
+# 포함 확장자 (마이크로서비스 특화)
+include_extensions:
+  - ".md"                  # 문서
+  - ".json"                # 설정 파일
+  - ".yaml"                # 설정 파일
+  - ".yml"                 # 설정 파일
+  - ".js"                  # JavaScript
+  - ".ts"                  # TypeScript
+  - ".py"                  # Python
+  - ".go"                  # Go
+  - ".rs"                  # Rust
+  - ".java"                # Java
+  - ".kt"                  # Kotlin
+  - ".scala"               # Scala
+  - ".php"                 # PHP
+  - ".rb"                  # Ruby
+  - ".cs"                  # C#
+  - ".proto"               # Protocol Buffers
+  - ".sql"                 # SQL
+  - ".sh"                  # Shell 스크립트
+  - ".ps1"                 # PowerShell
+
+# 리플렉션 명령어 (서비스별)
+reflect_command:
+  - "python"
+  - "tools/tasks_reflect.py"
+  - "--in"
+  - "tasks.json"
+  - "--out"
+  - "tasks.reflected.json"
+  - "--report"
+  - "reports/tasks_reflect_report.md"
+  - "--service-aware"      # 서비스 인식 모드
+
+# 고급 설정
+advanced:
+  # 배치 처리 (서비스 간 조율)
+  batch_processing: true
+  batch_size: 10
+  batch_timeout: 30
+  
+  # 병렬 처리 (서비스별)
+  parallel_reflection: true
+  max_workers: 8
+  
+  # 성능 모니터링
+  performance_monitoring: true
+  stats_interval: 60      # 1분마다 통계
+  
+  # 에러 처리 (서비스 복구)
+  error_handling:
+    max_retries: 5
+    retry_delay: 10
+    exponential_backoff: true
+    
+  # 알림 설정 (팀 협업)
+  notifications:
+    console: true
+    log_file: true
+    webhook_url: ""       # 팀 Slack
+    email: ""             # DevOps 팀
+    slack_channels:       # 서비스별 채널
+      - "backend-alerts"
+      - "frontend-alerts"
+      - "devops-alerts"
+
+# 서비스별 설정
+services:
+  user_service:
+    watch_directories: ["services/user"]
+    debounce_time: 2.0
+    max_file_size: 5242880
+    
+  order_service:
+    watch_directories: ["services/order"]
+    debounce_time: 2.0
+    max_file_size: 5242880
+    
+  payment_service:
+    watch_directories: ["services/payment"]
+    debounce_time: 3.0    # 결제는 더 신중하게
+    max_file_size: 5242880
+    
+  gateway:
+    watch_directories: ["gateway"]
+    debounce_time: 1.0    # 게이트웨이는 빠르게
+    max_file_size: 2097152
+
+# 환경별 설정
+environments:
+  development:
+    debounce_time: 1.0
+    hash_check: false
+    verbose_logging: true
+    watch_directories: ["services", "shared", "docs"]
+    
+  staging:
+    debounce_time: 2.0
+    hash_check: true
+    verbose_logging: true
+    watch_directories: ["services", "config", "k8s"]
+    
+  production:
+    debounce_time: 5.0
+    hash_check: true
+    verbose_logging: false
+    watch_directories: ["config", "k8s", "monitoring"]
+    batch_processing: true
+    
+  testing:
+    debounce_time: 0.5
+    hash_check: false
+    verbose_logging: true
+    watch_directories: ["services", "tests"]
+
+# 통합 설정
+integration:
+  # CI/CD 통합
+  ci_cd:
+    enabled: true
+    github_actions: true
+    jenkins: true
+    gitlab_ci: true
+    
+  # IDE 통합
+  ide_integration:
+    cursor: true
+    vscode: true
+    intellij: true
+    
+  # MCP 통합
+  mcp_integration:
+    enabled: true
+    mcp_server: "shrimp"
+    fallback_to_local: true
+    
+  # 모니터링 통합
+  monitoring:
+    prometheus: true
+    grafana: true
+    jaeger: true
+    elasticsearch: true

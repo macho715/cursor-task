@@ -213,7 +213,7 @@ class TaskExecutor:
             return f'cursor agent --apply=ask --rules "{task.title}"'
         
         elif task.type == "mcp":
-            return f'python tools/tasks_reflect.py --in tasks.json --out tasks.reflected.json'
+            return f'python tools/tasks_reflect.py --in tasks.json --out tasks.reflected.json --report reports/tasks_reflect_report.md'
         
         elif task.type == "ide":
             return f'cursor agent --apply=ask --rules "{task.title}"'
