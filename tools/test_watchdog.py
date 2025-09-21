@@ -185,6 +185,9 @@ def test_debounce_mechanism():
         
         # 디바운스 시간 경과 후 트리거
         time.sleep(2.1)
+        with open(test_file, 'w') as f:
+            json.dump({'test': 'debounce', 'updated_at': datetime.now().isoformat()}, f)
+
         should_trigger3 = handler.should_trigger_reflection(test_file)
         print(f"디바운스 후 트리거: {should_trigger3}")
         assert should_trigger3, "디바운스 시간 경과 후 트리거는 허용되어야 함"
