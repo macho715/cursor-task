@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.cursor.sh/mcp.json",
+  "runtimes": [
+    {
+      "name": "shrimp",
+      "command": "C:\\\\Tools\\\\shrimp\\\\shrimp.exe",
+      "args": [
+        "serve",
+        "--stdio"
+      ],
+      "env": {
+        "SHRIMP_HOME": "C:\\\\Tools\\\\shrimp",
+        "SHRIMP_TIMEOUT_SEC": "15",
+        "SHRIMP_RETRY": "3",
+        "SHRIMP_BACKOFF": "2"
+      },
+      "run_in_background": true,
+      "timeout_seconds": 20,
+      "when": "always"
+    }
+  ],
+  "_comments": [
+    "Windows path pinned by default. On macOS/Linux, set command to /usr/local/bin/shrimp (or your install path).",
+    "Optional MCPs (GitHub/Jira/DB) can be added below as additional runtimes."
+  ]
+}

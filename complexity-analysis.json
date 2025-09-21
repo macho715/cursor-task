@@ -1,0 +1,38 @@
+{
+  "complexity_analysis": {
+    "total_tasks": 5,
+    "complexity_stats": {
+      "average": 1.0,
+      "minimum": 1.0,
+      "maximum": 1.0,
+      "standard_deviation": 0.0
+    },
+    "complexity_distribution": {
+      "1.0": 5
+    },
+    "complexity_by_type": {
+      "code": [1.0],
+      "config": [1.0],
+      "cli": [1.0],
+      "mcp": [1.0],
+      "ide": [1.0]
+    },
+    "complexity_by_module": {
+      "core-setup": [1.0, 1.0],
+      "parse-and-reflect": [1.0, 1.0],
+      "agent-apply-ask": [1.0]
+    },
+    "recommendations": {
+      "issues": [
+        "모든 태스크가 동일한 복잡도(1.0)를 가짐",
+        "실제 작업 복잡도와 불일치 가능성",
+        "복잡도 차별화 필요"
+      ],
+      "suggestions": [
+        "core-setup:rules: 0.5 (간단한 설정)",
+        "parse-and-reflect:reflect: 1.5 (MCP 통합)",
+        "agent-apply-ask:apply: 2.0 (복잡한 에이전트 작업)"
+      ]
+    }
+  }
+}

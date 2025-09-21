@@ -1,0 +1,188 @@
+# 병렬 처리 설정
+
+parallel_execution:
+  # 기본 설정
+  default_strategy: "smart"
+  max_workers: 4
+  timeout_per_task: 300  # 5분
+  
+  # 전략별 설정
+  strategies:
+    conservative:
+      max_concurrent_tasks: 2
+      safety_margin: 0.8
+      resource_limit: 0.7
+      
+    aggressive:
+      max_concurrent_tasks: 8
+      safety_margin: 0.5
+      resource_limit: 0.9
+      
+    smart:
+      max_concurrent_tasks: 4
+      safety_margin: 0.7
+      resource_limit: 0.8
+      auto_adjust: true
+      
+    dependency:
+      respect_dependencies: true
+      parallel_levels: true
+      sequential_fallback: true
+
+# 리소스 관리
+resource_management:
+  # 리소스 제한
+  limits:
+    cpu_cores: 8
+    memory_gb: 16
+    disk_gb: 100
+    
+  # 태스크 타입별 리소스 할당
+  task_resources:
+    code:
+      cpu: 2
+      memory: 1024  # MB
+      disk: 50      # MB
+      
+    config:
+      cpu: 1
+      memory: 512
+      disk: 25
+      
+    cli:
+      cpu: 1
+      memory: 512
+      disk: 25
+      
+    mcp:
+      cpu: 3
+      memory: 2048
+      disk: 100
+      
+    ide:
+      cpu: 2
+      memory: 1024
+      disk: 50
+      
+    test:
+      cpu: 1
+      memory: 512
+      disk: 50
+      
+    doc:
+      cpu: 0.5
+      memory: 256
+      disk: 25
+
+# 병렬 그룹 설정
+parallel_groups:
+  # 그룹 크기 제한
+  max_group_size: 6
+  min_group_size: 1
+  
+  # 그룹 생성 규칙
+  grouping_rules:
+    same_module_priority: 0.8
+    same_type_priority: 0.6
+    complexity_variance_limit: 0.5
+    
+  # 그룹 실행 순서
+  execution_order:
+    - "dependency_level"
+    - "priority_score"
+    - "resource_availability"
+
+# 성능 모니터링
+monitoring:
+  # 메트릭 수집
+  metrics:
+    - "execution_time"
+    - "resource_usage"
+    - "success_rate"
+    - "parallel_efficiency"
+    
+  # 알림 임계값
+  alerts:
+    low_success_rate: 0.8
+    high_resource_usage: 0.9
+    long_execution_time: 600  # 10분
+    
+  # 로깅 레벨
+  log_level: "INFO"
+  log_file: "parallel_execution.log"
+
+# 최적화 설정
+optimization:
+  # 자동 최적화
+  auto_optimize: true
+  
+  # 최적화 대상
+  targets:
+    - "worker_allocation"
+    - "task_ordering"
+    - "resource_distribution"
+    
+  # 최적화 알고리즘
+  algorithms:
+    worker_allocation: "load_balancing"
+    task_ordering: "critical_path"
+    resource_distribution: "fair_sharing"
+
+# 시각화 설정
+visualization:
+  # 그래프 생성
+  generate_graphs: true
+  graph_formats: ["png", "svg", "pdf"]
+  
+  # 그래프 설정
+  graph_settings:
+    node_size: 1000
+    font_size: 8
+    layout: "spring"
+    
+  # 색상 맵
+  color_map:
+    code: "red"
+    config: "blue"
+    cli: "green"
+    mcp: "orange"
+    ide: "purple"
+    test: "brown"
+    doc: "pink"
+
+# 에러 처리
+error_handling:
+  # 재시도 설정
+  retry:
+    max_attempts: 3
+    backoff_factor: 2
+    max_delay: 60
+    
+  # 실패 처리
+  failure_handling:
+    stop_on_critical_failure: true
+    continue_on_non_critical: true
+    
+  # 복구 전략
+  recovery:
+    auto_retry: true
+    fallback_to_sequential: true
+    resource_cleanup: true
+
+# 통합 설정
+integration:
+  # Cursor IDE 통합
+  cursor_integration:
+    enabled: true
+    command_template: "cursor agent --apply=ask --rules \"{title}\""
+    
+  # MCP 통합
+  mcp_integration:
+    enabled: true
+    reflect_command: "python tools/tasks_reflect.py --in {input} --out {output} --report {report}"
+    
+  # CI/CD 통합
+  cicd_integration:
+    enabled: false
+    webhook_url: ""
+    notification_channels: []

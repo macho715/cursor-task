@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schemas.cursor.sh/mcp.json",
+  "runtimes": [
+    {
+      "name": "shrimp",
+      "command": "C:\\\\Tools\\\\shrimp\\\\shrimp.exe",
+      "args": [
+        "serve",
+        "--stdio"
+      ],
+      "env": {
+        "SHRIMP_HOME": "C:\\\\Tools\\\\shrimp",
+        "SHRIMP_TIMEOUT_SEC": "15",
+        "SHRIMP_RETRY": "3",
+        "SHRIMP_BACKOFF": "2"
+      },
+      "when": "always",
+      "run_in_background": true,
+      "timeout_seconds": 20
+    },
+    {
+      "name": "filesystem",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\cursor-mcp\\cursor task"
+      ],
+      "env": {
+        "MCP_TIMEOUT_SEC": "15",
+        "MCP_RETRY": "3",
+        "MCP_BACKOFF": "2"
+      },
+      "when": "always",
+      "run_in_background": true,
+      "timeout_seconds": 20
+    },
+    {
+      "name": "tasks-manager",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MCP_TIMEOUT_SEC": "15",
+        "MCP_RETRY": "3",
+        "MCP_BACKOFF": "2"
+      },
+      "when": "always",
+      "run_in_background": true,
+      "timeout_seconds": 20
+    }
+  ]
+}

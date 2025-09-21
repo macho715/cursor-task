@@ -1,0 +1,124 @@
+# Watchdog 기반 리플렉션 설정
+# 외부 레퍼런스: https://python-watchdog.readthedocs.io/en/stable/
+
+# 감시 대상 파일
+watch_files:
+  - "docs/PRD.md"
+  - "tasks.json"
+  - ".cursor/rules/**"
+
+# 감시 대상 디렉토리
+watch_directories:
+  - "docs"
+  - "."
+  - "src"
+  - "tools"
+
+# 성능 설정
+debounce_time: 2.0          # 디바운스 시간 (초)
+hash_check: true           # SHA-256 해시 기반 변경 감지
+recursive: true            # 재귀적 디렉토리 감시
+max_file_size: 10485760    # 최대 파일 크기 (10MB)
+
+# 제외 패턴 (glob 패턴)
+exclude_patterns:
+  - "*.tmp"
+  - "*.log"
+  - ".git/*"
+  - "node_modules/*"
+  - "__pycache__/*"
+  - "*.pyc"
+  - ".DS_Store"
+  - "Thumbs.db"
+
+# 포함 확장자
+include_extensions:
+  - ".md"      # Markdown 파일
+  - ".json"    # JSON 파일
+  - ".yaml"    # YAML 파일
+  - ".yml"     # YAML 파일
+  - ".py"      # Python 파일
+  - ".js"      # JavaScript 파일
+  - ".ts"      # TypeScript 파일
+
+# 리플렉션 명령어
+reflect_command:
+  - "python"
+  - "tools/tasks_reflect.py"
+  - "--in"
+  - "tasks.json"
+  - "--out"
+  - "tasks.reflected.json"
+  - "--report"
+  - "reports/tasks_reflect_report.md"
+
+# 고급 설정
+advanced:
+  # 배치 처리
+  batch_processing: false
+  batch_size: 10
+  batch_timeout: 30
+  
+  # 병렬 처리
+  parallel_reflection: false
+  max_workers: 4
+  
+  # 성능 모니터링
+  performance_monitoring: true
+  stats_interval: 60  # 통계 출력 간격 (초)
+  
+  # 에러 처리
+  error_handling:
+    max_retries: 3
+    retry_delay: 5
+    exponential_backoff: true
+    
+  # 알림 설정
+  notifications:
+    console: true
+    log_file: true
+    webhook_url: ""  # 선택적 웹훅 URL
+    email: ""        # 선택적 이메일 알림
+
+# 환경별 설정
+environments:
+  development:
+    debounce_time: 1.0
+    hash_check: true
+    verbose_logging: true
+    watch_directories: [".", "docs", "src"]
+    
+  production:
+    debounce_time: 5.0
+    hash_check: true
+    verbose_logging: false
+    watch_directories: ["docs", "tasks.json"]
+    batch_processing: true
+    
+  testing:
+    debounce_time: 0.5
+    hash_check: false
+    verbose_logging: true
+    watch_directories: ["test", "tests"]
+    max_file_size: 1048576  # 1MB
+
+# 통합 설정
+integration:
+  # CI/CD 통합
+  ci_cd:
+    enabled: false
+    github_actions: true
+    jenkins: false
+    gitlab_ci: false
+    
+  # IDE 통합
+  ide_integration:
+    cursor: true
+    vscode: true
+    intellij: false
+    
+  # MCP 통합
+  mcp_integration:
+    enabled: false
+    mcp_server: "shrimp"
+    fallback_to_local: true

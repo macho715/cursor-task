@@ -1,0 +1,70 @@
+# 우선순위 기반 실행 설정
+
+execution:
+  # 기본 실행 전략
+  default_strategy: "dependency"  # dependency, complexity, efficiency
+  
+  # 병렬 실행 설정
+  parallel:
+    enabled: true
+    max_workers: 2
+    timeout_per_task: 300  # 5분
+    
+  # 재시도 설정
+  retry:
+    max_attempts: 3
+    backoff_factor: 2
+    max_delay: 60  # 1분
+
+# 태스크 타입별 설정
+task_types:
+  code:
+    command_template: "cursor agent --apply=ask --rules \"{title}\""
+    can_parallel: false
+    priority: 1
+    
+  config:
+    command_template: "cursor agent --apply=ask --rules \"{title}\""
+    can_parallel: true
+    priority: 2
+    
+  cli:
+    command_template: "cursor agent --apply=ask --rules \"{title}\""
+    can_parallel: true
+    priority: 3
+    
+  mcp:
+    command_template: "python tools/tasks_reflect.py --in tasks.json --out tasks.reflected.json"
+    can_parallel: false
+    priority: 4
+    
+  ide:
+    command_template: "cursor agent --apply=ask --rules \"{title}\""
+    can_parallel: false
+    priority: 5
+
+# 복잡도 임계값
+complexity_thresholds:
+  low: 1.0
+  medium: 1.5
+  high: 2.0
+  critical: 2.5
+
+# 모듈별 우선순위
+module_priority:
+  core-setup: 1
+  parse-and-reflect: 2
+  agent-apply-ask: 3
+
+# 로깅 설정
+logging:
+  level: "INFO"
+  file: "priority_execution.log"
+  format: "%(asctime)s - %(levelname)s - %(message)s"
+  
+# 리포트 설정
+reporting:
+  generate_html: true
+  include_metrics: true
+  save_to_file: true
+  output_dir: "reports"

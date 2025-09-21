@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schemas.cursor.sh/mcp.json",
+  "runtimes": [
+    {
+      "name": "filesystem",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\cursor-mcp\\cursor task"
+      ],
+      "env": {
+        "MCP_TIMEOUT_SEC": "15",
+        "MCP_RETRY": "3",
+        "MCP_BACKOFF": "2"
+      },
+      "when": "always",
+      "run_in_background": true,
+      "timeout_seconds": 20
+    },
+    {
+      "name": "tasks-manager",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MCP_TIMEOUT_SEC": "15",
+        "MCP_RETRY": "3",
+        "MCP_BACKOFF": "2"
+      },
+      "when": "always",
+      "run_in_background": true,
+      "timeout_seconds": 20
+    }
+  ]
+}

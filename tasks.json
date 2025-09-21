@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schemas.cursor.sh/tm.tasks.json",
+  "meta": {
+    "source": "docs/PRD.md",
+    "generated_at": "2025-09-21T10:38:11Z"
+  },
+  "tasks": [
+    {
+      "id": "core-setup:rules",
+      "title": "Add .cursor/rules 4-pack",
+      "module": "core-setup",
+      "type": "code",
+      "deps": [],
+      "complexity": 1.0,
+      "acceptance": [
+        "rules present",
+        "lint pass"
+      ]
+    },
+    {
+      "id": "core-setup:mcp",
+      "title": "Register Shrimp MCP in ~/.cursor/mcp.json",
+      "module": "core-setup",
+      "type": "config",
+      "deps": [
+        "core-setup:rules"
+      ],
+      "complexity": 1.0,
+      "acceptance": [
+        "shrimp registered"
+      ]
+    },
+    {
+      "id": "parse-and-reflect:generate",
+      "title": "Generate tasks.json from PRD",
+      "module": "parse-and-reflect",
+      "type": "cli",
+      "deps": [
+        "core-setup:rules"
+      ],
+      "complexity": 1.0,
+      "acceptance": [
+        "tasks.json exists"
+      ]
+    },
+    {
+      "id": "parse-and-reflect:reflect",
+      "title": "Reflect deps/complexity via Shrimp MCP",
+      "module": "parse-and-reflect",
+      "type": "mcp",
+      "deps": [
+        "parse-and-reflect:generate"
+      ],
+      "complexity": 1.0,
+      "acceptance": [
+        "deps/complexity populated"
+      ]
+    },
+    {
+      "id": "agent-apply-ask:apply",
+      "title": "Safe apply with Agent (--apply=ask)",
+      "module": "agent-apply-ask",
+      "type": "ide",
+      "deps": [
+        "parse-and-reflect:reflect"
+      ],
+      "complexity": 1.0,
+      "acceptance": [
+        "diff-confirm executed"
+      ]
+    }
+  ]
+}
