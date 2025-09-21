@@ -3,10 +3,12 @@
 ### 새로운 기능
 
 - implement hybrid AI development workflow with 4-axis upgrade
+- feat: modularize reflection engine for cross-project reuse
 
 ### 테스트 추가/수정
 
 - trigger GitHub Actions workflow
+- test: cover reusable reflection package behaviors
 
 ## 📊 통계
 

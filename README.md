@@ -24,6 +24,8 @@
 ### 🛠️ **핵심 도구**
 
 - **`tasks_reflect.py`** - 로컬 리플렉터 (Shrimp MCP 대체)
+- **`reflection/` 패키지** - 다른 프로젝트에서도 재사용 가능한 리플렉션 엔진
+- **`task_reflector_core.py`** - 다른 프로젝트에서 재사용 가능한 리플렉션 코어 모듈
 - **`watchdog_reflector.py`** - 실시간 파일 감지 및 자동 리플렉션
 - **`dag_visualizer.py`** - DAG 시각화 및 Gantt 차트 생성
 - **`execute_priority.py`** - 우선순위 기반 태스크 실행
@@ -71,6 +73,22 @@ python tools/parallel_executor.py --strategy smart
 
 # 자동 리플렉션 데몬
 python tools/auto_reflector.py --mode daemon
+```
+
+### ♻️ 다른 프로젝트에서 재사용하기
+
+```python
+from reflection import TaskReflector, load_config
+
+reflector = TaskReflector(load_config("config/reflection.json"))
+tasks = reflector.load_tasks("tasks.json")
+result = reflector.reflect(tasks)
+```
+
+```bash
+# 커스텀 구성과 함께 CLI 실행
+python tools/tasks_reflect.py --in tasks.json --out tasks.reflected.json \
+  --report reports/tasks_reflect_report.md --config config/reflection.json
 ```
 
 ## 📊 시각화 결과
@@ -224,4 +242,4 @@ cursor-task/
 
 ---
 
-⭐ **이 프로젝트가 도움이 되었다면 Star를 눌러주세요!**# Test GitHub Actions trigger
+⭐ **이 프로젝트가 도움이 되었다면 Star를 눌러주세요!**
