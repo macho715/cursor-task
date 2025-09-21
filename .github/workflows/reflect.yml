@@ -30,7 +30,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       
       - name: Install dependencies
         run: |
@@ -93,7 +92,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
       
       - name: Install dependencies
         run: |
@@ -132,7 +130,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       
       - name: Install linting tools
         run: |
@@ -163,7 +160,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       
       - name: Install dependencies
         run: |
