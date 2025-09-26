@@ -5,11 +5,9 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from rich.console import Console
+from .utils import ensure_directory, get_console, read_jsonl
 
-from .utils import ensure_directory, read_jsonl
-
-console = Console()
+console = get_console()
 
 
 def rollback_from_journal(journal_path: Path) -> None:

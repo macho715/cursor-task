@@ -10,19 +10,18 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import List, Optional
 
-from rich.console import Console
-from rich.progress import track
-
 from .config import FileDocument, ScanConfig
 from .utils import (
     compute_blake3,
     ensure_directory,
     generate_doc_id,
+    get_console,
+    iter_with_progress,
     mask_sensitive_text,
     store_documents,
 )
 
-console = Console()
+console = get_console()
 
 
 def _read_text_sample(path: Path, sample_bytes: int) -> str:
@@ -164,7 +163,7 @@ def scan(config: ScanConfig) -> List[FileDocument]:
             if not root.exists():
                 console.print(f"[yellow]경로 없음/Path missing:[/] {root}")
                 continue
-            for file_path in track(
+            for file_path in iter_with_progress(
                 list(root.rglob("*")),
                 description=f"스캔 중/Scanning {root}",
             ):

@@ -1,11 +1,10 @@
-"""Typer 기반 CLI 정의/Typer-based CLI definition."""
+"""CLI 엔트리포인트/CLI entry point."""
 
 from __future__ import annotations
 
+import importlib
 from pathlib import Path
-
-import typer
-from rich.console import Console
+from typing import Any, Callable, Protocol, TypeVar, cast
 
 from .clusterer import ClusterInput, cluster_documents, load_scores
 from .config import ClusterProject, ClusterResult, ScanConfig, SchemaConfig
@@ -14,19 +13,94 @@ from .reporting import generate_summary
 from .rollback import rollback_from_journal
 from .rules_engine import apply_rules
 from .scanner import scan
-from .utils import load_documents, load_json, save_json
+from .utils import get_console, load_documents, load_json, save_json
 
-app = typer.Typer(help="프로젝트 자동 정리 CLI/Project organization CLI")
-console = Console()
+TFunc = TypeVar("TFunc", bound=Callable[..., Any])
+
+
+class TyperAppProtocol(Protocol):
+    """Typer 앱 인터페이스/Typer app interface."""
+
+    def command(self, *args: Any, **kwargs: Any) -> Callable[[TFunc], TFunc]:
+        """명령 데코레이터 반환/Return command decorator."""
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """애플리케이션 실행/Invoke application."""
+
+
+class TyperModuleProtocol(Protocol):
+    """Typer 모듈 인터페이스/Typer module interface."""
+
+    def Typer(self, *args: Any, **kwargs: Any) -> TyperAppProtocol:
+        """Typer 앱 생성/Create Typer app."""
+
+    def Option(self, default: Any = ..., **kwargs: Any) -> Any:
+        """옵션 생성/Create option."""
+
+    def Argument(self, default: Any = ..., **kwargs: Any) -> Any:
+        """인자 생성/Create argument."""
+
+
+class _TyperFallbackApp:
+    """Typer 대체 앱/Fallback Typer app."""
+
+    def command(self, *args: Any, **kwargs: Any) -> Callable[[TFunc], TFunc]:
+        """기본 데코레이터 반환/Return identity decorator."""
+
+        def decorator(func: TFunc) -> TFunc:
+            """원본 함수 반환/Return original function."""
+
+            return func
+
+        return decorator
+
+    def __call__(self, *args: Any, **kwargs: Any) -> None:
+        """대체 실행/No-op execution."""
+
+        print("Typer module is unavailable.")
+
+
+class _TyperFallbackModule:
+    """Typer 대체 모듈/Fallback Typer module."""
+
+    def Typer(self, *args: Any, **kwargs: Any) -> TyperAppProtocol:
+        """대체 앱 생성/Create fallback app."""
+
+        return _TyperFallbackApp()
+
+    def Option(self, default: Any = ..., **kwargs: Any) -> Any:
+        """기본값 반환/Return default value."""
+
+        return default
+
+    def Argument(self, default: Any = ..., **kwargs: Any) -> Any:
+        """기본값 반환/Return default value."""
+
+        return default
+
+
+def _load_typer_module() -> TyperModuleProtocol:
+    """Typer 모듈 로드/Load Typer module."""
+
+    try:
+        module = importlib.import_module("typer")
+        return cast(TyperModuleProtocol, module)
+    except Exception:  # pragma: no cover - optional dependency
+        return _TyperFallbackModule()
+
+
+typer_module = _load_typer_module()
+Option = typer_module.Option
+Argument = typer_module.Argument
+app = typer_module.Typer(help="프로젝트 자동 정리 CLI/Project organization CLI")
+console = get_console()
 
 
 @app.command()
 def scan_cmd(
-    paths: list[str] = typer.Option(..., help="스캔 경로 목록/Paths to scan"),
-    max_size: int = typer.Option(
-        500 * 1024 * 1024, help="최대 파일 크기/Max file size"
-    ),
-    sample_bytes: int = typer.Option(4096, help="샘플 바이트 수/Sample bytes"),
+    paths: list[str] = Option(..., help="스캔 경로 목록/Paths to scan"),
+    max_size: int = Option(500 * 1024 * 1024, help="최대 파일 크기/Max file size"),
+    sample_bytes: int = Option(4096, help="샘플 바이트 수/Sample bytes"),
 ) -> None:
     """scan 명령 실행/Execute scan command."""
 
@@ -40,8 +114,8 @@ def scan_cmd(
 
 @app.command()
 def rules(
-    config_path: Path = typer.Option(..., help="규칙 설정 경로/Path to rules config"),
-    emit: Path = typer.Option(Path(".cache/scores.json"), help="출력 경로/Output path"),
+    config_path: Path = Option(..., help="규칙 설정 경로/Path to rules config"),
+    emit: Path = Option(Path(".cache/scores.json"), help="출력 경로/Output path"),
 ) -> None:
     """규칙 엔진 실행/Run rules engine."""
 
@@ -50,12 +124,10 @@ def rules(
 
 @app.command()
 def cluster(
-    model: str = typer.Option("heuristic", help="모델 이름/Model name"),
-    budget: str = typer.Option("$0", help="예산/Budget"),
-    project_mode: bool = typer.Option(True, help="프로젝트 모드/Project mode"),
-    out: Path = typer.Option(
-        Path(".cache/projects.json"), help="결과 경로/Output path"
-    ),
+    model: str = Option("heuristic", help="모델 이름/Model name"),
+    budget: str = Option("$0", help="예산/Budget"),
+    project_mode: bool = Option(True, help="프로젝트 모드/Project mode"),
+    out: Path = Option(Path(".cache/projects.json"), help="결과 경로/Output path"),
 ) -> None:
     """군집 작업 실행/Execute clustering."""
 
@@ -94,23 +166,17 @@ def cluster(
 
 @app.command()
 def organize(
-    projects: Path = typer.Option(
+    projects: Path = Option(
         Path(".cache/projects.json"), help="프로젝트 파일/Projects file"
     ),
-    target: Path = typer.Option(
-        Path("C:/PROJECTS_STRUCT"), help="대상 루트/Target root"
-    ),
-    schema_path: Path = typer.Option(
-        Path("schema.yml"), help="스키마 경로/Schema path"
-    ),
-    clusters: Path = typer.Option(
+    target: Path = Option(Path("C:/PROJECTS_STRUCT"), help="대상 루트/Target root"),
+    schema_path: Path = Option(Path("schema.yml"), help="스키마 경로/Schema path"),
+    clusters: Path = Option(
         Path(".cache/projects.json"), help="클러스터 경로/Cluster path"
     ),
-    mode: str = typer.Option("move", help="이동 모드/Move mode"),
-    conflict: str = typer.Option("version", help="충돌 정책/Conflict policy"),
-    journal: Path = typer.Option(
-        Path(".cache/journal.jsonl"), help="저널 경로/Journal path"
-    ),
+    mode: str = Option("move", help="이동 모드/Move mode"),
+    conflict: str = Option("version", help="충돌 정책/Conflict policy"),
+    journal: Path = Option(Path(".cache/journal.jsonl"), help="저널 경로/Journal path"),
 ) -> None:
     """조직화 수행/Perform organization."""
 
@@ -145,13 +211,11 @@ def organize(
 
 @app.command()
 def report(
-    clusters: Path = typer.Option(
+    clusters: Path = Option(
         Path(".cache/projects.json"), help="클러스터 파일/Cluster file"
     ),
-    journal: Path = typer.Option(
-        Path(".cache/journal.jsonl"), help="저널 파일/Journal file"
-    ),
-    out: Path = typer.Option(
+    journal: Path = Option(Path(".cache/journal.jsonl"), help="저널 파일/Journal file"),
+    out: Path = Option(
         Path("reports/projects_summary.html"), help="HTML 출력/HTML output"
     ),
 ) -> None:
@@ -176,9 +240,7 @@ def report(
 
 
 @app.command()
-def rollback(
-    journal: Path = typer.Argument(..., help="저널 경로/Journal path")
-) -> None:
+def rollback(journal: Path = Argument(..., help="저널 경로/Journal path")) -> None:
     """저널 롤백 실행/Execute journal rollback."""
 
     rollback_from_journal(journal)

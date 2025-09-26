@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import importlib
 import json
 import os
 import re
@@ -10,9 +12,21 @@ import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Protocol,
+    Tuple,
+    TypeVar,
+    cast,
+)
 
-from blake3 import blake3
+T = TypeVar("T")
+HasherFactory = Callable[[], "HashProtocol"]
 
 UUID_NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")
 
@@ -27,10 +41,115 @@ def ensure_directory(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
-def compute_blake3(path: Path) -> str:
-    """BLAKE3 해시 계산/Compute BLAKE3 hash."""
+class ConsoleProtocol(Protocol):
+    """콘솔 인터페이스 규약/Console interface protocol."""
 
-    hasher = blake3()
+    def print(self, message: str) -> None:
+        """메시지 출력/Print message."""
+
+
+class HashProtocol(Protocol):
+    """해시 객체 규약/Hash object protocol."""
+
+    def update(self, data: bytes) -> None:
+        """해시 데이터 업데이트/Update hash with data."""
+
+    def hexdigest(self) -> str:
+        """해시 헥사 문자열 반환/Return hexadecimal digest."""
+
+
+_BLAKE3_FACTORY: HasherFactory | None = None
+
+
+def _load_blake3_factory() -> HasherFactory | None:
+    """BLAKE3 생성기 로드/Load BLAKE3 factory."""
+
+    global _BLAKE3_FACTORY
+    if _BLAKE3_FACTORY is not None:
+        return _BLAKE3_FACTORY
+    try:
+        module = importlib.import_module("blake3")
+        factory = getattr(module, "blake3", None)
+        if callable(factory):
+            _BLAKE3_FACTORY = cast(HasherFactory, factory)
+            return _BLAKE3_FACTORY
+    except Exception:  # pragma: no cover - optional dependency
+        pass
+    _BLAKE3_FACTORY = None
+    return None
+
+
+def get_console() -> ConsoleProtocol:
+    """콘솔 인스턴스 제공/Provide console instance."""
+
+    try:
+        console_module = importlib.import_module("rich.console")
+        console_cls = getattr(console_module, "Console", None)
+        if callable(console_cls):
+            return cast(ConsoleProtocol, console_cls())
+    except Exception:  # pragma: no cover - best effort import
+        pass
+
+    class SimpleConsole:
+        """단순 콘솔 구현/Simple console implementation."""
+
+        def print(self, message: str) -> None:
+            """텍스트 출력/Print message."""
+
+            print(message)
+
+    return cast(ConsoleProtocol, SimpleConsole())
+
+
+def iter_with_progress(iterable: Iterable[T], description: str = "") -> Iterator[T]:
+    """진행 표시 반복기/Iterate with optional progress."""
+
+    try:
+        progress_module = importlib.import_module("rich.progress")
+        track_fn = getattr(progress_module, "track", None)
+        if callable(track_fn):
+            yield from track_fn(iterable, description=description)
+            return
+    except Exception:  # pragma: no cover - best effort import
+        pass
+    yield from iterable
+
+
+def _ensure_dict(data: object) -> Dict[str, Any]:
+    """사전 객체 보장/Ensure dictionary object."""
+
+    if isinstance(data, dict):
+        return {str(key): value for key, value in data.items()}
+    return {}
+
+
+def load_yaml_or_json_dict(path: Path) -> Dict[str, Any]:
+    """YAML/JSON 사전 로드/Load dict from YAML or JSON."""
+
+    try:
+        yaml_module = importlib.import_module("yaml")
+    except Exception:  # pragma: no cover - optional dependency
+        return _ensure_dict(load_json(path))
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    try:
+        loaded = yaml_module.safe_load(text)
+    except Exception:
+        return _ensure_dict(load_json(path))
+    return _ensure_dict(loaded)
+
+
+def compute_blake3(path: Path) -> str:
+    """파일 해시 계산(BLAKE3 선호)/Compute file hash preferring BLAKE3."""
+
+    factory = _load_blake3_factory()
+    hasher: HashProtocol
+    if factory is not None:
+        hasher = factory()
+    else:
+        hasher = cast(HashProtocol, hashlib.blake2b(digest_size=32))
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(8192), b""):
             hasher.update(chunk)

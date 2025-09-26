@@ -7,12 +7,10 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, Mapping
 
-from rich.console import Console
-
 from .config import ClusterResult
-from .utils import ensure_directory, read_jsonl
+from .utils import ensure_directory, get_console, read_jsonl
 
-console = Console()
+console = get_console()
 
 
 def generate_summary(

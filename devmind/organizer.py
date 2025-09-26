@@ -6,17 +6,16 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
-from rich.console import Console
-
 from .config import ClusterResult, OrganizePlan, SchemaConfig
-from .utils import append_jsonl, ensure_directory, load_json, now_ts
+from .utils import (
+    append_jsonl,
+    ensure_directory,
+    get_console,
+    load_yaml_or_json_dict,
+    now_ts,
+)
 
-try:
-    import yaml
-except ImportError:  # pragma: no cover
-    yaml = None  # type: ignore[assignment]
-
-console = Console()
+console = get_console()
 
 
 BUCKET_DIRECTORY_MAP: Dict[str, str] = {
@@ -36,11 +35,7 @@ BUCKET_DIRECTORY_MAP: Dict[str, str] = {
 def load_schema(path: Path) -> SchemaConfig:
     """스키마 로드/Load schema configuration."""
 
-    if yaml is not None:
-        data_raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    else:
-        data_raw = load_json(path)
-    data = data_raw if isinstance(data_raw, dict) else {}
+    data = load_yaml_or_json_dict(path)
     structure_raw = data.get("structure", [])
     structure = [str(item) for item in structure_raw]
     target_root = Path(str(data.get("target_root", "C:/PROJECTS_STRUCT")))

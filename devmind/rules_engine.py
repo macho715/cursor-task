@@ -6,20 +6,22 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
-import yaml
-from rich.console import Console
-
 from .config import BucketRule, FileDocument, RuleConfig
-from .utils import load_documents, save_json, score_match
+from .utils import (
+    get_console,
+    load_documents,
+    load_yaml_or_json_dict,
+    save_json,
+    score_match,
+)
 
-console = Console()
+console = get_console()
 
 
 def load_rule_config(path: Path) -> RuleConfig:
     """규칙 설정 로드/Load rule configuration."""
 
-    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    data = raw if isinstance(raw, dict) else {}
+    data = load_yaml_or_json_dict(path)
     buckets_raw = data.get("buckets", {})
     if isinstance(buckets_raw, dict):
         bucket_items = list(buckets_raw.items())
